@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who Wants to be Career Ready?</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #00274C, #FFFFFF);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/55/OleMissLogo.png');
+      background-repeat: no-repeat;
+      background-size: 150px;
+      background-position: top right;
+    }
+    .game-container {
+      max-width: 900px;
+      margin: auto;
+      background: #003366;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+    .question {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      color: #FFD700;
+    }
+    .answers button {
+      display: block;
+      width: 80%;
+      margin: 0.5rem auto;
+      padding: 1rem;
+      font-size: 1.3rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #8B0000;
+      color: white;
+      transition: background 0.3s;
+    }
+    .answers button:hover {
+      background: #B22222;
+    }
+    .lifelines {
+      margin: 1rem;
+    }
+    .lifelines button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+      background: #006666;
+      color: #fff;
+      cursor: pointer;
+    }
+    .result {
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      color: #ADFF2F;
+    }
+    .fireworks {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      color: #FFD700;
+      z-index: 1000;
+    }
+    #leaderboard {
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 10px;
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1 style="color:#FFD700">Who Wants to be Career Ready?</h1>
+    <div>
+      <label for="playerName">Enter Your Name:</label>
+      <input type="text" id="playerName" placeholder="Your name">
+    </div>
+    <div class="lifelines">
+      <button onclick="use5050()">50:50</button>
+      <button onclick="askClass()">Ask the Class</button>
+      <button onclick="coachHint()">Career Coach Hint</button>
+    </div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="result" id="result"></div>
+    <div id="leaderboard">
+      <h3>Leaderboard</h3>
+      <ul id="leaderboardList"></ul>
+    </div>
+  </div>
+  <div class="fireworks" id="fireworks">
+    🎓 Hotty Toddy! You're Career Ready! 🎓
+  </div>
+
+  <!-- Audio elements -->
+  <audio id="correctSound1" src="https://cdn.pixabay.com/audio/2021/08/04/audio_b19844b0de.mp3"></audio>
+  <audio id="correctSound2" src="https://cdn.pixabay.com/audio/2021/08/09/audio_d8cc91f5f6.mp3"></audio>
+  <audio id="wrongSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_40821776e2.mp3"></audio>
+  <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2022/03/15/audio_8813266f64.mp3" loop></audio>
+
+  <script>
+    const leaderboard = [];
+    const questions = [
+      {
+        q: "What does the 'T' in SMART goals stand for?",
+        options: ["Transparent", "Tangible", "Timely", "Trustworthy"],
+        correct: 2,
+        hint: "Think about when the goal should be completed."
+      },
+      {
+        q: "Which platform helps students find internships and jobs?",
+        options: ["LinkedIn", "Handshake", "Blackboard", "Canvas"],
+        correct: 1,
+        hint: "Used by Career Centers nationwide."
+      },
+      {
+        q: "What is a key component of a 30-second commercial?",
+        options: ["Your favorite movie", "Career goals", "GPA", "SAT score"],
+        correct: 1,
+        hint: "Think: what employers want to know."
+      },
+      {
+        q: "Which of the following is NOT typically included in a resume?",
+        options: ["Work Experience", "References", "Social Security Number", "Education"],
+        correct: 2,
+        hint: "It's a sensitive personal detail."
+      },
+      {
+        q: "Why is a thank-you email important after an interview?",
+        options: ["To ask for the job", "To restate your interest and appreciation", "To provide jokes", "To critique the employer"],
+        correct: 1,
+        hint: "It's a polite follow-up."
+      },
+      {
+        q: "What does MBTI stand for?",
+        options: ["My Best Training Initiative", "More Business Tech Innovation", "Myers-Briggs Type Indicator", "Marketing Basics & Training Index"],
+        correct: 2,
+        hint: "It's a personality tool."
+      },
+      {
+        q: "What is the purpose of the Handshake platform?",
+        options: ["Homework submission", "Job and internship search", "Social media", "Online banking"],
+        correct: 1,
+        hint: "Career Center recommends it."
+      },
+      {
+        q: "What is the maximum number of absences allowed before your final grade drops?",
+        options: ["1", "2", "3", "4"],
+        correct: 2,
+        hint: "It’s one less than the consequence."
+      },
+      {
+        q: "Which personality type tool is used in class?",
+        options: ["SAT", "ACT", "MBTI", "GRE"],
+        correct: 2,
+        hint: "Think four letters."
+      },
+      {
+        q: "What type of attire is appropriate for a Career Fair?",
+        options: ["Pajamas", "Athletic wear", "Business professional", "Flip-flops"],
+        correct: 2,
+        hint: "Dress for the job you want."
+      },
+      {
+        q: "What is a Forage Virtual Experience?",
+        options: ["A live Zoom meeting", "A resume editing tool", "A simulated work-based learning opportunity", "An online GPA calculator"],
+        correct: 2,
+        hint: "It mimics real work projects."
+      },
+      {
+        q: "Which assignment involves using ChatGPT for career preparation?",
+        options: ["MBTI Paper", "SMART Goals", "ChatGPT & Your Job Search", "Budget Worksheet"],
+        correct: 2,
+        hint: "It's a new AI-driven task."
+      },
+      {
+        q: "What does a cover letter usually explain?",
+        options: ["Your salary demand", "Your job title", "Your interest and fit for the role", "Your travel history"],
+        correct: 2,
+        hint: "Why you’re the right candidate."
+      },
+      {
+        q: "What kind of reflection is submitted after a mock interview?",
+        options: ["Video meme", "Thank-you card", "One-page reflection", "Group chat message"],
+        correct: 2,
+        hint: "It helps you analyze your performance."
+      },
+      {
+        q: "Which tool helps build behavioral interview answers?",
+        options: ["Big Interview", "TikTok", "Zoom", "Snapchat"],
+        correct: 0,
+        hint: "It has STAR-based guidance."
+      },
+      {
+        q: "What are two required elements of your LinkedIn profile?",
+        options: ["Cover photo and jokes", "Hashtags and likes", "Professional summary and skills", "Games and hobbies"],
+        correct: 2,
+        hint: "Think job-relevant."
+      },
+      {
+        q: "Which financial document helps track monthly spending?",
+        options: ["Tax return", "Personal Spending Plan", "Parking permit", "Student ID"],
+        correct: 1,
+        hint: "Used in budgeting assignment."
+      },
+      {
+        q: "How should your resume be submitted in this course?",
+        options: ["As a Google Doc link", "Via Email", "As PDF or Word on Blackboard", "As a photo attachment"],
+        correct: 2,
+        hint: "Blackboard submission only."
+      },
+      {
+        q: "Which document outlines your personality code (like ENFP)?",
+        options: ["MBTI Reflection", "Cover Letter", "Budget Worksheet", "Handshake Profile"],
+        correct: 0,
+        hint: "Discusses strengths and weaknesses."
+      },
+      {
+        q: "Which of these is a common interview question?",
+        options: ["What is your spirit animal?", "Tell me about yourself", "What’s your favorite song?", "Where do you shop?"],
+        correct: 1,
+        hint: "Practice it with your 30-second commercial."
+      },
+      {
+        q: "What does the 'S' in SMART goals stand for?",
+        options: ["Special", "Savvy", "Specific", "Speedy"],
+        correct: 2,
+        hint: "It answers: what exactly do you want?"
+      }, 1000);
+      } else {
+        resultDiv.textContent = "❌ Try again!";
+        document.getElementById('wrongSound').play();
+      }
+    }
+
+    function addToLeaderboard() {
+      const name = document.getElementById('playerName').value || 'Anonymous';
+      leaderboard.push({ name, score });
+      leaderboard.sort((a, b) => b.score - a.score);
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      leaderboard.forEach((entry, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i + 1}. ${entry.name} - ${entry.score}`;
+        list.appendChild(li);
+      });
+    }
+
+    function use5050() {
+      if (used5050) return;
+      const q = questions[current];
+      const correctIndex = q.correct;
+      const answersDiv = document.getElementById('answers');
+      const buttons = answersDiv.querySelectorAll('button');
+      let removed = 0;
+      buttons.forEach((btn, i) => {
+        if (i !== correctIndex && removed < 2) {
+          btn.style.display = 'none';
+          removed++;
+        }
+      });
+      used5050 = true;
+    }
+
+    function askClass() {
+      alert("Class says: We think the answer is... " + questions[current].options[questions[current].correct]);
+    }
+
+    function coachHint() {
+      alert("Hint: " + questions[current].hint);
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
